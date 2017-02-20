@@ -16,7 +16,7 @@ public class DataLoader extends IntentService {
 	private static final String LOG_TAG = "Data Loader";
 	public enum DataType {
 		OPERATOR_CODE,EMPLOYEE_LOGIN,EMPLOYEE_INVENTORY,COMPLAINTS_LIST,COMPLAINTS_CATEGORY_LIST,COMPLAINT_EDIT,INDENT_RASING,Inventory_Items,
-		admin_inventory,admin_inventory_edit,admin_inv_update,stockist_inventory,stockist_inventory_edit,stockist_inv_update,EMPGPSLOC}
+		admin_inventory,admin_inventory_edit,admin_inv_update,stockist_inventory,stockist_inventory_edit,stockist_inv_update,EMPGPSLOC,CLOSEDCOMP}
 
 	public DataLoader() {
 		super("Data Loader");
@@ -36,6 +36,7 @@ public class DataLoader extends IntentService {
 		String remarks = intent.getStringExtra("remarks");
 		String closed_img = intent.getStringExtra("closed_img");
 		String gio_loc = intent.getStringExtra("gio_loc");
+		String getclosedcompID=intent.getStringExtra("getclosedcompID");
 
 		String getempID = intent.getStringExtra("getempID");
 		String inv_id = intent.getStringExtra("inv_id");
@@ -61,7 +62,7 @@ public class DataLoader extends IntentService {
 		if (SaveAppData.getSessionDataInstance().getOperatorData() != null || SaveAppData.getSessionDataInstance().getOperatorLoginData() != null ) {
 			OperatorCode operatorCode = null;
 			operatorCode = SaveAppData.getSessionDataInstance().getOperatorData();
-			 mainURL = operatorCode.getop_url();
+			mainURL = operatorCode.getop_url();
 		}
 		switch (dataType) {
 			case OPERATOR_CODE:
@@ -96,7 +97,8 @@ public class DataLoader extends IntentService {
 				data=response;
 				break;
 			case COMPLAINT_EDIT:
-				uri=mainURL+"complaints_edit.php?complaint_id="+complaint_id+"&comp_status="+comp_status+"&emp_id="+emp_id+"&remarks="+remarks+"&closed_img="+closed_img+"&gio_loc="+gio_loc+"";
+				uri=mainURL+"complaints_edit.php?complaint_id="+complaint_id+"&comp_status="+comp_status+"&emp_id="+emp_id+"&remarks="+remarks+"&comp_closed_cat="+getclosedcompID+"&closed_img="+closed_img+"&gio_loc="+gio_loc+"";
+				Log.e("uri",uri);
 				caller=new APICaller();
 				response = caller.GetDataFromUrl(uri);
 				data=response;
@@ -155,25 +157,29 @@ public class DataLoader extends IntentService {
 				response = caller.GetDataFromUrl(uri);
 				data=response;
 				break;
-
-
+			case CLOSEDCOMP:
+				uri=mainURL+"get_closed_comp_cat.php";
+				caller=new APICaller();
+				response = caller.GetDataFromUrl(uri);
+				data=response;
+				break;
 		}
-			try {
-				Bundle extras = intent.getExtras();
-				if (extras != null) {
-					Bundle bundle = new Bundle();
-					bundle.putString("data", data);
-					Messenger messenger = (Messenger) extras.get("MESSENGER");
-					Message msg = Message.obtain();
-					msg.setData(bundle);
-					try {
-						messenger.send(msg);
-					} catch (RemoteException e) {
-						Log.e(LOG_TAG, "Exception sending message", e);
-					}
+		try {
+			Bundle extras = intent.getExtras();
+			if (extras != null) {
+				Bundle bundle = new Bundle();
+				bundle.putString("data", data);
+				Messenger messenger = (Messenger) extras.get("MESSENGER");
+				Message msg = Message.obtain();
+				msg.setData(bundle);
+				try {
+					messenger.send(msg);
+				} catch (RemoteException e) {
+					Log.e(LOG_TAG, "Exception sending message", e);
 				}
 			}
-		 catch (Exception e) {
+		}
+		catch (Exception e) {
 			Log.e(LOG_TAG, "Exception sending message", e);
 		}
 	}

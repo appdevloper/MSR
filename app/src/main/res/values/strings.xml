@@ -27,7 +27,7 @@
     <string name="required_On">Required On</string>
     <string name="remarks">Remarks</string>
     <string name="submit">SUBMIT</string>
-    <string name="complaints_definition">Description</string>
+    <string name="complaints_Remarks">Remarks</string>
     <string name="used_inventory">Inventory Used ?</string>
     <string name="Capture_Image">Capture Image</string>
     <string name="redirect_to_dashboard">Redirect To Dashboard</string>

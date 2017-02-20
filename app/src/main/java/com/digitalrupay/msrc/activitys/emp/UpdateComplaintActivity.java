@@ -34,9 +34,11 @@ import android.widget.Toast;
 import com.digitalrupay.msrc.R;
 import com.digitalrupay.msrc.activitys.BaseActivity;
 import com.digitalrupay.msrc.adapter.ComplaintInventoryListAdapter;
+import com.digitalrupay.msrc.adapter.SpinnerClosedCompAdapter;
 import com.digitalrupay.msrc.backendServices.DataLoader;
 import com.digitalrupay.msrc.backendServices.GPSTracker;
 import com.digitalrupay.msrc.dataModel.CategoryListData;
+import com.digitalrupay.msrc.dataModel.ClosedcompData;
 import com.digitalrupay.msrc.dataModel.ComplaintData;
 import com.digitalrupay.msrc.dataModel.InventoryData;
 import com.digitalrupay.msrc.dataModel.OperatorLoginData;
@@ -58,6 +60,9 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,18 +78,18 @@ public class UpdateComplaintActivity extends BaseActivity {
     LinearLayout Add_complaints_definition, section_inventory;
     boolean isOpen;
     EditText Add_complaints, used_qty;
-    Spinner sp_pending_complaints, select_inventory;
+    Spinner sp_pending_complaints, select_inventory,sp_closed_complaints;
     String[] pending_complaints;
     ArrayList<InventoryData> inventoryDataList = new ArrayList<>();
     CheckBox check_used_inventory;
     RelativeLayout sub_section_inventory;
     GPSTracker gps;
-    String complaint_id,comp_status,getempID,remarks,closed_img_name,gio_loc,ba1,picturePath,getcomp_cat, cos_data;
+    String complaint_id,comp_status,getempID,remarks,closed_img_name,gio_loc,ba1,picturePath="",getcomp_cat, cos_data,getclosedcompID;
     Uri selectedImage,fileUri;
     Bitmap photo;
     public static String URL = "http://devtest.digitalrupay.com/webservices/uploads/upload.php";
     ImageView imageView;
-
+    ArrayList<ClosedcompData> listclosedcompData=new ArrayList<>();
     private Timer mTimer1;
     private TimerTask mTt1;
     private Handler mTimerHandler = new Handler();
@@ -100,18 +105,21 @@ public class UpdateComplaintActivity extends BaseActivity {
         OperatorLoginData operatorCode = null;
         operatorCode = SaveAppData.getSessionDataInstance().getOperatorLoginData();
 
-         getempID = operatorCode.getemp_id();
+        getempID = operatorCode.getemp_id();
 
         Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
         Messenger dataMessenger = new Messenger(cHandler);
         dataIntent.putExtra("MESSENGER", dataMessenger);
         dataIntent.putExtra("type", DataLoader.DataType.COMPLAINTS_CATEGORY_LIST.ordinal());
         startService(dataIntent);
+
+
         empname=(TextView)findViewById(R.id.in_empname);
         complaint_stats=(TextView)findViewById(R.id.complaint_stats);
         Add_complaints_definition=(LinearLayout) findViewById(R.id.Add_complaints_definition);
         Add_complaints=(EditText)findViewById(R.id.Add_complaints);
         sp_pending_complaints=(Spinner)findViewById(R.id.sp_pending_complaints);
+        sp_closed_complaints=(Spinner)findViewById(R.id.sp_closed_complaints);
         section_inventory=(LinearLayout)findViewById(R.id.section_inventory);
         select_inventory=(Spinner) findViewById(R.id.select_inventory);
         used_qty=(EditText)findViewById(R.id.used_qty);
@@ -164,8 +172,56 @@ public class UpdateComplaintActivity extends BaseActivity {
                 }
             }
         });
+        getCloseComplaintComt();
+        sp_closed_complaints.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                getclosedcompID=listclosedcompData.get(position).getclosed_id();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                getclosedcompID="";
+            }
+        });
     }
 
+    private void getCloseComplaintComt() {
+        Intent dataIntent1 = new Intent(UpdateComplaintActivity.this, DataLoader.class);
+        Messenger dataMessenger1 = new Messenger(CLOSEDCOMPHandler);
+        dataIntent1.putExtra("MESSENGER", dataMessenger1);
+        dataIntent1.putExtra("type", DataLoader.DataType.CLOSEDCOMP.ordinal());
+        startService(dataIntent1);
+    }
+
+    private Handler CLOSEDCOMPHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle   bundle = msg.getData();
+            String response = bundle.getString("data");
+            try{
+                JSONObject responseObj = new JSONObject(response);
+                String message = responseObj.getString("message");
+                if (message.equalsIgnoreCase("success")) {
+
+                    Iterator<String> keys = responseObj.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        if (!key.equalsIgnoreCase("message") && !key.equalsIgnoreCase("text")) {
+                            ClosedcompData closedcompData = new Gson().fromJson(responseObj.getJSONObject(key).toString(),new TypeToken<ClosedcompData>() {}.getType());
+                            listclosedcompData.add(closedcompData);
+                        }
+                        SpinnerClosedCompAdapter adapter=new SpinnerClosedCompAdapter(UpdateComplaintActivity.this,listclosedcompData);
+                        sp_closed_complaints.setAdapter(adapter);
+                    }
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+    };
     private void getInventoryList() {
         Intent dataIntent1 = new Intent(UpdateComplaintActivity.this, DataLoader.class);
         Messenger dataMessenger1 = new Messenger(iHandler);
@@ -236,7 +292,7 @@ public class UpdateComplaintActivity extends BaseActivity {
 
     public void submit(View view){
         remarks=Add_complaints.getText().toString().replace(" ","%20");
-       double latitude=0.0,longitude=0.0;
+        double latitude=0.0,longitude=0.0;
         if(gps.canGetLocation()){
             latitude = gps.getLatitude();
             longitude  = gps.getLongitude();
@@ -244,7 +300,22 @@ public class UpdateComplaintActivity extends BaseActivity {
             gps.showSettingsAlert();
         }
         gio_loc=latitude+","+longitude;
-        upload();
+        if(picturePath.length()==0) {
+            Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
+            Messenger dataMessenger = new Messenger(complaintsHandler);
+            dataIntent.putExtra("MESSENGER", dataMessenger);
+            dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
+            dataIntent.putExtra("complaint_id", complaint_id);
+            dataIntent.putExtra("comp_status", comp_status);
+            dataIntent.putExtra("emp_id", getempID);
+            dataIntent.putExtra("remarks", remarks);
+            dataIntent.putExtra("closed_img", "");
+            dataIntent.putExtra("getclosedcompID",getclosedcompID);
+            dataIntent.putExtra("gio_loc", gio_loc);
+            startService(dataIntent);
+        }else {
+            upload();
+        }
     }
 
     private Handler complaintsHandler=new Handler(){
@@ -257,13 +328,14 @@ public class UpdateComplaintActivity extends BaseActivity {
                 JSONObject responseObj = new JSONObject(response);
                 String message = responseObj.getString("message");
                 if (message.equalsIgnoreCase("success")) {
-                    Dialog dialog=new Dialog(UpdateComplaintActivity.this);
+                    final Dialog dialog=new Dialog(UpdateComplaintActivity.this);
                     dialog.setContentView(R.layout.dialogcomplaint);
                     dialog.setCancelable(false);
                     Button button=(Button) dialog.findViewById(R.id.Redirecttodashboard);
                     button.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            dialog.cancel();
                             finish();
                         }
                     });
@@ -279,14 +351,15 @@ public class UpdateComplaintActivity extends BaseActivity {
         clickpic();
     }
     private void upload() {
-    Bitmap bitmap = ImageUtils.getInstant().getCompressedBitmap(picturePath);
-    int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
-    Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
-    ByteArrayOutputStream bao = new ByteArrayOutputStream();
-    scaled.compress(Bitmap.CompressFormat.JPEG, 50, bao);
-    byte[] ba = bao.toByteArray();
-    ba1 = Base64.encodeToString(ba, Base64.NO_WRAP);
-    new uploadToServer(UpdateComplaintActivity.this).execute();
+        Bitmap bitmap = ImageUtils.getInstant().getCompressedBitmap(picturePath);
+        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        scaled.compress(Bitmap.CompressFormat.JPEG, 50, bao);
+        byte[] ba = bao.toByteArray();
+        ba1 = Base64.encodeToString(ba, Base64.NO_WRAP);
+
+        new uploadToServer(UpdateComplaintActivity.this).execute();
     }
     private void clickpic() {
         if (getApplicationContext().getPackageManager().hasSystemFeature(
@@ -303,15 +376,19 @@ public class UpdateComplaintActivity extends BaseActivity {
         if (requestCode == 100 && resultCode == RESULT_OK) {
             selectedImage = data.getData();
             photo = (Bitmap) data.getExtras().get("data");
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            File outputFile = new File(Environment.getExternalStorageDirectory(), getempID+"_"+System.currentTimeMillis() + ".jpg");
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                photo.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            picturePath = cursor.getString(columnIndex);
-            cursor.close();
+            picturePath=outputFile.getPath();
 
             Bitmap photo = (Bitmap) data.getExtras().get("data");
 
@@ -340,16 +417,18 @@ public class UpdateComplaintActivity extends BaseActivity {
             nameValuePairs.add(new BasicNameValuePair("base64", ba1));
             nameValuePairs.add(new BasicNameValuePair("ImageName", closed_img_name));
             try {
+
                 Intent dataIntent = new Intent(context, DataLoader.class);
                 Messenger dataMessenger = new Messenger(complaintsHandler);
                 dataIntent.putExtra("MESSENGER", dataMessenger);
                 dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
-                dataIntent.putExtra("complaint_id",complaint_id);
-                dataIntent.putExtra("comp_status",comp_status);
-                dataIntent.putExtra("emp_id",getempID);
-                dataIntent.putExtra("remarks",remarks);
-                dataIntent.putExtra("closed_img",closed_img_name);
-                dataIntent.putExtra("gio_loc",gio_loc);
+                dataIntent.putExtra("complaint_id", complaint_id);
+                dataIntent.putExtra("comp_status", comp_status);
+                dataIntent.putExtra("emp_id", getempID);
+                dataIntent.putExtra("remarks", remarks);
+                dataIntent.putExtra("closed_img", closed_img_name);
+                dataIntent.putExtra("getclosedcompID",getclosedcompID);
+                dataIntent.putExtra("gio_loc", gio_loc);
                 startService(dataIntent);
 
                 HttpClient httpclient = new DefaultHttpClient();
@@ -357,7 +436,6 @@ public class UpdateComplaintActivity extends BaseActivity {
                 httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 HttpResponse response = httpclient.execute(httppost);
                 String st = EntityUtils.toString(response.getEntity());
-
             } catch (Exception e) {
                 e.printStackTrace();
                 resetData();
