@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.digitalrupay.msrc">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <application
+        android:name=".MSRCApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activitys.SearchOperatorCode" />
+        <activity android:name=".activitys.EMPLoginActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.EMPHomeActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.InventoryActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.ComplaintsActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.InventoryListActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.IndentRaisingActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.UpdateComplaintActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.IndentSuccessActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.admin.AdminHomeActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.admin.EditAdminInventoryActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.stockist.StockistHomeActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.stockist.EditStockInventoryActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activitys.emp.ImageUploadActivity" android:screenOrientation="portrait"/>
+        <service android:name=".backendServices.DataLoader" />
+    </application>
+</manifest>
