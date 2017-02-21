@@ -52,14 +52,14 @@ public class ComplaintsActivity extends BaseActivity implements AdapterView.OnIt
 
     private void getComplaintsList(String getempID) {
         Intent dataIntent = new Intent(ComplaintsActivity.this, DataLoader.class);
-        Messenger dataMessenger = new Messenger(cHandler);
+        Messenger dataMessenger = new Messenger(COMPLAINTS_LISTHandler);
         dataIntent.putExtra("MESSENGER", dataMessenger);
         dataIntent.putExtra("type", DataLoader.DataType.COMPLAINTS_LIST.ordinal());
         dataIntent.putExtra("jsonObject", getempID);
         startService(dataIntent);
     }
 
-    private Handler cHandler=new Handler(){
+    private Handler COMPLAINTS_LISTHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);

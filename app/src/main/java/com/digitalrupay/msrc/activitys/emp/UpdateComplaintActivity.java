@@ -8,6 +8,9 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +19,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.util.*;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,6 +32,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -75,10 +81,10 @@ public class UpdateComplaintActivity extends BaseActivity {
     ComplaintData complaintData;
     TextView empname, complaint_stats;
     ArrayList<CategoryListData> categoryList;
-    LinearLayout Add_complaints_definition, section_inventory;
+    LinearLayout Add_complaints_definition, section_inventory,sub1_section_inventory,sub2_section_inventory;
     boolean isOpen;
     EditText Add_complaints, used_qty;
-    Spinner sp_pending_complaints, select_inventory,sp_closed_complaints;
+    Spinner sp_pending_complaints, select_inventory,select_inventory1,sp_closed_complaints,select_inventory2;
     String[] pending_complaints;
     ArrayList<InventoryData> inventoryDataList = new ArrayList<>();
     CheckBox check_used_inventory;
@@ -88,12 +94,14 @@ public class UpdateComplaintActivity extends BaseActivity {
     Uri selectedImage,fileUri;
     Bitmap photo;
     public static String URL = "http://devtest.digitalrupay.com/webservices/uploads/upload.php";
-    ImageView imageView;
+    ImageView imageView,Imageprev1,Imageprev2;
     ArrayList<ClosedcompData> listclosedcompData=new ArrayList<>();
     private Timer mTimer1;
     private TimerTask mTt1;
     private Handler mTimerHandler = new Handler();
-
+    FloatingActionButton FAB;
+    ScrollView scroll_move;
+    int count;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +116,7 @@ public class UpdateComplaintActivity extends BaseActivity {
         getempID = operatorCode.getemp_id();
 
         Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
-        Messenger dataMessenger = new Messenger(cHandler);
+        Messenger dataMessenger = new Messenger(COMPLAINTS_CATEGORYHandler);
         dataIntent.putExtra("MESSENGER", dataMessenger);
         dataIntent.putExtra("type", DataLoader.DataType.COMPLAINTS_CATEGORY_LIST.ordinal());
         startService(dataIntent);
@@ -122,24 +130,60 @@ public class UpdateComplaintActivity extends BaseActivity {
         sp_closed_complaints=(Spinner)findViewById(R.id.sp_closed_complaints);
         section_inventory=(LinearLayout)findViewById(R.id.section_inventory);
         select_inventory=(Spinner) findViewById(R.id.select_inventory);
+        select_inventory1=(Spinner)findViewById(R.id.select_inventory1);
+        select_inventory2=(Spinner)findViewById(R.id.select_inventory2);
         used_qty=(EditText)findViewById(R.id.used_qty);
         check_used_inventory=(CheckBox)findViewById(R.id.check_used_inventory);
         sub_section_inventory=(RelativeLayout)findViewById(R.id.sub_section_inventory);
         imageView = (ImageView) findViewById(R.id.Imageprev);
+        Imageprev1=(ImageView)findViewById(R.id.Imageprev1);
+        Imageprev2=(ImageView)findViewById(R.id.Imageprev2);
+        scroll_move=(ScrollView)findViewById(R.id.scroll_move);
+        sub1_section_inventory=(LinearLayout)findViewById(R.id.sub1_section_inventory);
+        sub2_section_inventory=(LinearLayout)findViewById(R.id.sub2_section_inventory);
+        FAB = (FloatingActionButton) findViewById(R.id.fab);
+        FAB.setVisibility(View.GONE);
+        count=0;
+        FAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scroll_move.fullScroll(ScrollView.FOCUS_DOWN);
+                count=count+1;
+                if(count==1){
+                    sub1_section_inventory.setVisibility(View.VISIBLE);
+                }else if(count==2){
+                    sub2_section_inventory.setVisibility(View.VISIBLE);
+                }else {
+                    Snackbar snackbar = Snackbar.make(findViewById(R.id.fab), "Only Three Edit Options", Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
+
+            }
+        });
         getInventoryList();
         complaint_id=complaintData.getcomplaint_id();
         cos_data=complaintData.getfirst_name()+" ("+complaintData.getcustom_customer_no()+") "+complaintData.getmobile_no()+", "+complaintData.getcity();
         getcomp_cat=complaintData.getcomp_cat();
         empname.setText(cos_data);
+
         pending_complaints=getResources().getStringArray(R.array.PendingComplaintsList);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_complaint,pending_complaints);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_complaint, pending_complaints);
         sp_pending_complaints.setAdapter(adapter);
+        String getcomp_status=complaintData.getcomp_status();
+        int position=Integer.parseInt(getcomp_status);
+        if(position==0){
+            sp_pending_complaints.setSelection(0);
+        }else if(position==1){
+            sp_pending_complaints.setSelection(1);
+        }else if(position==2){
+            sp_pending_complaints.setSelection(2);
+        }
 
         gps = new GPSTracker(UpdateComplaintActivity.this);
-
         if(!gps.canGetLocation()){
             gps.showSettingsAlert();
         }
+
         startTimer();
         sp_pending_complaints.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -204,7 +248,6 @@ public class UpdateComplaintActivity extends BaseActivity {
                 JSONObject responseObj = new JSONObject(response);
                 String message = responseObj.getString("message");
                 if (message.equalsIgnoreCase("success")) {
-
                     Iterator<String> keys = responseObj.keys();
                     while (keys.hasNext()) {
                         String key = keys.next();
@@ -224,12 +267,13 @@ public class UpdateComplaintActivity extends BaseActivity {
     };
     private void getInventoryList() {
         Intent dataIntent1 = new Intent(UpdateComplaintActivity.this, DataLoader.class);
-        Messenger dataMessenger1 = new Messenger(iHandler);
+        Messenger dataMessenger1 = new Messenger(InventoryHandler);
         dataIntent1.putExtra("MESSENGER", dataMessenger1);
-        dataIntent1.putExtra("type", DataLoader.DataType.Inventory_Items.ordinal());
+        dataIntent1.putExtra("type", DataLoader.DataType.EMPLOYEE_INVENTORY.ordinal());
+        dataIntent1.putExtra("jsonObject", getempID);
         startService(dataIntent1);
     }
-    private Handler iHandler=new Handler(){
+    private Handler InventoryHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -249,6 +293,8 @@ public class UpdateComplaintActivity extends BaseActivity {
                         }
                         ComplaintInventoryListAdapter adapter=new ComplaintInventoryListAdapter(UpdateComplaintActivity.this,inventoryDataList);
                         select_inventory.setAdapter(adapter);
+                        select_inventory1.setAdapter(adapter);
+                        select_inventory2.setAdapter(adapter);
                     }
                 }
             }catch (Exception e){
@@ -257,7 +303,7 @@ public class UpdateComplaintActivity extends BaseActivity {
 
         }
     };
-    private Handler cHandler=new Handler(){
+    private Handler COMPLAINTS_CATEGORYHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -301,18 +347,19 @@ public class UpdateComplaintActivity extends BaseActivity {
         }
         gio_loc=latitude+","+longitude;
         if(picturePath.length()==0) {
-            Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
-            Messenger dataMessenger = new Messenger(complaintsHandler);
-            dataIntent.putExtra("MESSENGER", dataMessenger);
-            dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
-            dataIntent.putExtra("complaint_id", complaint_id);
-            dataIntent.putExtra("comp_status", comp_status);
-            dataIntent.putExtra("emp_id", getempID);
-            dataIntent.putExtra("remarks", remarks);
-            dataIntent.putExtra("closed_img", "");
-            dataIntent.putExtra("getclosedcompID",getclosedcompID);
-            dataIntent.putExtra("gio_loc", gio_loc);
-            startService(dataIntent);
+                Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
+                Messenger dataMessenger = new Messenger(complaintsHandler);
+                dataIntent.putExtra("MESSENGER", dataMessenger);
+                dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
+                dataIntent.putExtra("complaint_id", complaint_id);
+                dataIntent.putExtra("comp_status", comp_status);
+                dataIntent.putExtra("emp_id", getempID);
+                dataIntent.putExtra("remarks", remarks);
+                dataIntent.putExtra("closed_img", "");
+                dataIntent.putExtra("getclosedcompID", getclosedcompID);
+                dataIntent.putExtra("gio_loc", gio_loc);
+                startService(dataIntent);
+
         }else {
             upload();
         }
@@ -361,13 +408,29 @@ public class UpdateComplaintActivity extends BaseActivity {
 
         new uploadToServer(UpdateComplaintActivity.this).execute();
     }
+    public void captureImage1(View view){
+        if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(intent, 101);
+        } else {
+            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
+        }
+    }
+    public void captureImage2(View view){
+        if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(intent, 102);
+        } else {
+            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
+        }
+    }
     private void clickpic() {
-        if (getApplicationContext().getPackageManager().hasSystemFeature(
-                PackageManager.FEATURE_CAMERA)) {
+        if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
             startActivityForResult(intent, 100);
-
         } else {
             Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
         }
@@ -376,10 +439,32 @@ public class UpdateComplaintActivity extends BaseActivity {
         if (requestCode == 100 && resultCode == RESULT_OK) {
             selectedImage = data.getData();
             photo = (Bitmap) data.getExtras().get("data");
+            double latitude=0.0,longitude=0.0;
+            if(gps.canGetLocation()){
+                latitude = gps.getLatitude();
+                longitude  = gps.getLongitude();
+            }else{
+                gps.showSettingsAlert();
+            }
+            gio_loc=latitude+","+longitude;
+            int w = photo.getWidth();
+            int h = photo.getHeight();
+
+            Bitmap result = Bitmap.createBitmap(w, h, photo.getConfig());
+
+            Canvas canvas = new Canvas(result);
+            canvas.drawBitmap(photo, 0, 0, null);
+
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.BLUE);
+            paint.setTextSize(12);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawText(gio_loc, 15, 200, paint);
+
             File outputFile = new File(Environment.getExternalStorageDirectory(), getempID+"_"+System.currentTimeMillis() + ".jpg");
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-                photo.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                result.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
                 fileOutputStream.flush();
                 fileOutputStream.close();
             } catch (FileNotFoundException e) {
@@ -387,13 +472,89 @@ public class UpdateComplaintActivity extends BaseActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             picturePath=outputFile.getPath();
-
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-
             imageView.setVisibility(View.VISIBLE);
-            imageView.setImageBitmap(photo);
+            imageView.setImageBitmap(result);
+            FAB.setVisibility(View.VISIBLE);
+        }else if (requestCode == 101 && resultCode == RESULT_OK) {
+                selectedImage = data.getData();
+                photo = (Bitmap) data.getExtras().get("data");
+                double latitude=0.0,longitude=0.0;
+                if(gps.canGetLocation()){
+                    latitude = gps.getLatitude();
+                    longitude  = gps.getLongitude();
+                }else{
+                    gps.showSettingsAlert();
+                }
+                gio_loc=latitude+","+longitude;
+                int w = photo.getWidth();
+                int h = photo.getHeight();
+
+                Bitmap result = Bitmap.createBitmap(w, h, photo.getConfig());
+
+                Canvas canvas = new Canvas(result);
+                canvas.drawBitmap(photo, 0, 0, null);
+
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setColor(Color.BLUE);
+                paint.setTextSize(12);
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawText(gio_loc, 15, 200, paint);
+
+                File outputFile = new File(Environment.getExternalStorageDirectory(), getempID+"_"+System.currentTimeMillis() +count+ ".jpg");
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                    result.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                picturePath=outputFile.getPath();
+            Imageprev1.setVisibility(View.VISIBLE);
+            Imageprev1.setImageBitmap(result);
+            }
+        else if (requestCode == 102 && resultCode == RESULT_OK) {
+            selectedImage = data.getData();
+            photo = (Bitmap) data.getExtras().get("data");
+            double latitude=0.0,longitude=0.0;
+            if(gps.canGetLocation()){
+                latitude = gps.getLatitude();
+                longitude  = gps.getLongitude();
+            }else{
+                gps.showSettingsAlert();
+            }
+            gio_loc=latitude+","+longitude;
+            int w = photo.getWidth();
+            int h = photo.getHeight();
+
+            Bitmap result = Bitmap.createBitmap(w, h, photo.getConfig());
+
+            Canvas canvas = new Canvas(result);
+            canvas.drawBitmap(photo, 0, 0, null);
+
+            Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            paint.setColor(Color.BLUE);
+            paint.setTextSize(12);
+            paint.setStyle(Paint.Style.FILL);
+            canvas.drawText(gio_loc, 15, 200, paint);
+
+            File outputFile = new File(Environment.getExternalStorageDirectory(), getempID+"_"+System.currentTimeMillis() +count+ ".jpg");
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                result.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            picturePath=outputFile.getPath();
+            Imageprev2.setVisibility(View.VISIBLE);
+            Imageprev2.setImageBitmap(result);
         }
     }
     public class uploadToServer extends AsyncTask<Void, Void, String> {
@@ -455,15 +616,12 @@ public class UpdateComplaintActivity extends BaseActivity {
         imageView.setVisibility(View.GONE);
         Add_complaints.setText("");
     }
-
-
     private void stopTimer(){
         if(mTimer1 != null){
             mTimer1.cancel();
             mTimer1.purge();
         }
     }
-
     private void startTimer(){
         mTimer1 = new Timer();
         mTt1 = new TimerTask() {

@@ -40,7 +40,7 @@
         <activity android:name=".activitys.admin.EditAdminInventoryActivity" android:screenOrientation="portrait"/>
         <activity android:name=".activitys.stockist.StockistHomeActivity" android:screenOrientation="portrait"/>
         <activity android:name=".activitys.stockist.EditStockInventoryActivity" android:screenOrientation="portrait"/>
-        <activity android:name=".activitys.emp.ImageUploadActivity" android:screenOrientation="portrait"/>
+
         <service android:name=".backendServices.DataLoader" />
     </application>
 </manifest>

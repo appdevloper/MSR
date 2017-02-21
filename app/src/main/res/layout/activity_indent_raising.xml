@@ -69,7 +69,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:imeOptions="actionNext"
-                        android:hint="Quantity"
+                        android:hint="Qty"
                         android:textColor="@color/green"
                         android:inputType="number"/>
                 </android.support.design.widget.TextInputLayout>
