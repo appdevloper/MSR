@@ -83,14 +83,15 @@ public class UpdateComplaintActivity extends BaseActivity {
     ArrayList<CategoryListData> categoryList;
     LinearLayout Add_complaints_definition, section_inventory,sub1_section_inventory,sub2_section_inventory;
     boolean isOpen;
-    EditText Add_complaints, used_qty;
+    EditText Add_complaints, used_qty,used_qty1,used_qty2;
     Spinner sp_pending_complaints, select_inventory,select_inventory1,sp_closed_complaints,select_inventory2;
     String[] pending_complaints;
     ArrayList<InventoryData> inventoryDataList = new ArrayList<>();
     CheckBox check_used_inventory;
     RelativeLayout sub_section_inventory;
     GPSTracker gps;
-    String complaint_id,comp_status,getempID,remarks,closed_img_name,gio_loc,ba1,picturePath="",getcomp_cat, cos_data,getclosedcompID;
+    String complaint_id,comp_status,getempID,remarks,closed_img_name="",closed_img_name1="",closed_img_name2="",gio_loc,ba1,picturePath="",
+            picture1Path="",picture2Path="",getcomp_cat, cos_data,getclosedcompID,getselectinventory1="",getselectinventory2="",getselectinventory3="",getused_qty,getused_qty1,getused_qty2;
     Uri selectedImage,fileUri;
     Bitmap photo;
     public static String URL = "http://devtest.digitalrupay.com/webservices/uploads/upload.php";
@@ -133,6 +134,8 @@ public class UpdateComplaintActivity extends BaseActivity {
         select_inventory1=(Spinner)findViewById(R.id.select_inventory1);
         select_inventory2=(Spinner)findViewById(R.id.select_inventory2);
         used_qty=(EditText)findViewById(R.id.used_qty);
+        used_qty1=(EditText)findViewById(R.id.used_qty1);
+        used_qty2=(EditText)findViewById(R.id.used_qty2);
         check_used_inventory=(CheckBox)findViewById(R.id.check_used_inventory);
         sub_section_inventory=(RelativeLayout)findViewById(R.id.sub_section_inventory);
         imageView = (ImageView) findViewById(R.id.Imageprev);
@@ -226,6 +229,39 @@ public class UpdateComplaintActivity extends BaseActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 getclosedcompID="";
+            }
+        });
+        select_inventory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                getselectinventory1=inventoryDataList.get(position).getinv_id();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        select_inventory1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                getselectinventory2=inventoryDataList.get(position).getinv_id();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        select_inventory2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                getselectinventory3=inventoryDataList.get(position).getinv_id();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
@@ -335,78 +371,14 @@ public class UpdateComplaintActivity extends BaseActivity {
             }
         }
     };
-
-    public void submit(View view){
-        remarks=Add_complaints.getText().toString().replace(" ","%20");
-        double latitude=0.0,longitude=0.0;
-        if(gps.canGetLocation()){
-            latitude = gps.getLatitude();
-            longitude  = gps.getLongitude();
-        }else{
-            gps.showSettingsAlert();
-        }
-        gio_loc=latitude+","+longitude;
-        if(picturePath.length()==0) {
-                Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
-                Messenger dataMessenger = new Messenger(complaintsHandler);
-                dataIntent.putExtra("MESSENGER", dataMessenger);
-                dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
-                dataIntent.putExtra("complaint_id", complaint_id);
-                dataIntent.putExtra("comp_status", comp_status);
-                dataIntent.putExtra("emp_id", getempID);
-                dataIntent.putExtra("remarks", remarks);
-                dataIntent.putExtra("closed_img", "");
-                dataIntent.putExtra("getclosedcompID", getclosedcompID);
-                dataIntent.putExtra("gio_loc", gio_loc);
-                startService(dataIntent);
-
-        }else {
-            upload();
-        }
-    }
-
-    private Handler complaintsHandler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            Bundle   bundle = msg.getData();
-            String response = bundle.getString("data");
-            try{
-                JSONObject responseObj = new JSONObject(response);
-                String message = responseObj.getString("message");
-                if (message.equalsIgnoreCase("success")) {
-                    final Dialog dialog=new Dialog(UpdateComplaintActivity.this);
-                    dialog.setContentView(R.layout.dialogcomplaint);
-                    dialog.setCancelable(false);
-                    Button button=(Button) dialog.findViewById(R.id.Redirecttodashboard);
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.cancel();
-                            finish();
-                        }
-                    });
-                    dialog.show();
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
-        }
-    };
     public void captureImage(View view){
-        clickpic();
-    }
-    private void upload() {
-        Bitmap bitmap = ImageUtils.getInstant().getCompressedBitmap(picturePath);
-        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
-        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
-        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        scaled.compress(Bitmap.CompressFormat.JPEG, 50, bao);
-        byte[] ba = bao.toByteArray();
-        ba1 = Base64.encodeToString(ba, Base64.NO_WRAP);
-
-        new uploadToServer(UpdateComplaintActivity.this).execute();
+        if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(intent, 100);
+        } else {
+            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
+        }
     }
     public void captureImage1(View view){
         if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
@@ -426,15 +398,6 @@ public class UpdateComplaintActivity extends BaseActivity {
             Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
         }
     }
-    private void clickpic() {
-        if (getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-            startActivityForResult(intent, 100);
-        } else {
-            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
-        }
-    }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 100 && resultCode == RESULT_OK) {
             selectedImage = data.getData();
@@ -442,7 +405,13 @@ public class UpdateComplaintActivity extends BaseActivity {
             double latitude=0.0,longitude=0.0;
             if(gps.canGetLocation()){
                 latitude = gps.getLatitude();
-                longitude  = gps.getLongitude();
+                longitude = gps.getLongitude();
+                if(latitude==0.0&&longitude==0.0){
+                    gps = new GPSTracker(UpdateComplaintActivity.this);
+                }else {
+                    latitude = gps.getLatitude();
+                    longitude = gps.getLongitude();
+                }
             }else{
                 gps.showSettingsAlert();
             }
@@ -476,13 +445,20 @@ public class UpdateComplaintActivity extends BaseActivity {
             imageView.setVisibility(View.VISIBLE);
             imageView.setImageBitmap(result);
             FAB.setVisibility(View.VISIBLE);
+            closed_img_name=getempID+"_"+System.currentTimeMillis() + count+".png";
         }else if (requestCode == 101 && resultCode == RESULT_OK) {
                 selectedImage = data.getData();
                 photo = (Bitmap) data.getExtras().get("data");
                 double latitude=0.0,longitude=0.0;
-                if(gps.canGetLocation()){
+            if(gps.canGetLocation()){
+                latitude = gps.getLatitude();
+                longitude = gps.getLongitude();
+                if(latitude==0.0&&longitude==0.0){
+                    gps = new GPSTracker(UpdateComplaintActivity.this);
+                }else {
                     latitude = gps.getLatitude();
-                    longitude  = gps.getLongitude();
+                    longitude = gps.getLongitude();
+                }
                 }else{
                     gps.showSettingsAlert();
                 }
@@ -512,9 +488,10 @@ public class UpdateComplaintActivity extends BaseActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                picturePath=outputFile.getPath();
+            picture1Path=outputFile.getPath();
             Imageprev1.setVisibility(View.VISIBLE);
             Imageprev1.setImageBitmap(result);
+            closed_img_name1=getempID+"_"+System.currentTimeMillis() + count+".png";
             }
         else if (requestCode == 102 && resultCode == RESULT_OK) {
             selectedImage = data.getData();
@@ -522,7 +499,13 @@ public class UpdateComplaintActivity extends BaseActivity {
             double latitude=0.0,longitude=0.0;
             if(gps.canGetLocation()){
                 latitude = gps.getLatitude();
-                longitude  = gps.getLongitude();
+                longitude = gps.getLongitude();
+                if(latitude==0.0&&longitude==0.0){
+                    gps = new GPSTracker(UpdateComplaintActivity.this);
+                }else {
+                    latitude = gps.getLatitude();
+                    longitude = gps.getLongitude();
+                }
             }else{
                 gps.showSettingsAlert();
             }
@@ -552,17 +535,30 @@ public class UpdateComplaintActivity extends BaseActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            picturePath=outputFile.getPath();
+            picture2Path=outputFile.getPath();
             Imageprev2.setVisibility(View.VISIBLE);
             Imageprev2.setImageBitmap(result);
+            closed_img_name2=getempID+"_"+System.currentTimeMillis() + count+".png";
         }
+    }
+    private void upload(String picturePath,String ImageName) {
+        Bitmap bitmap = ImageUtils.getInstant().getCompressedBitmap(picturePath);
+        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+        scaled.compress(Bitmap.CompressFormat.JPEG, 50, bao);
+        byte[] ba = bao.toByteArray();
+        ba1 = Base64.encodeToString(ba, Base64.NO_WRAP);
+        new uploadToServer(UpdateComplaintActivity.this,picturePath,ImageName).execute();
     }
     public class uploadToServer extends AsyncTask<Void, Void, String> {
         Context context;
+        String name;
         private ProgressDialog pd = new ProgressDialog(UpdateComplaintActivity.this);
 
-        public uploadToServer(Context con) {
+        public uploadToServer(Context con,String path,String ImageName) {
             this.context=con;
+            this.name=ImageName;
         }
 
         protected void onPreExecute() {
@@ -573,30 +569,16 @@ public class UpdateComplaintActivity extends BaseActivity {
         }
         @Override
         protected String doInBackground(Void... params) {
-            closed_img_name=getempID+"_"+System.currentTimeMillis() + ".png";
             ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
             nameValuePairs.add(new BasicNameValuePair("base64", ba1));
-            nameValuePairs.add(new BasicNameValuePair("ImageName", closed_img_name));
+            nameValuePairs.add(new BasicNameValuePair("ImageName", name));
             try {
-
-                Intent dataIntent = new Intent(context, DataLoader.class);
-                Messenger dataMessenger = new Messenger(complaintsHandler);
-                dataIntent.putExtra("MESSENGER", dataMessenger);
-                dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
-                dataIntent.putExtra("complaint_id", complaint_id);
-                dataIntent.putExtra("comp_status", comp_status);
-                dataIntent.putExtra("emp_id", getempID);
-                dataIntent.putExtra("remarks", remarks);
-                dataIntent.putExtra("closed_img", closed_img_name);
-                dataIntent.putExtra("getclosedcompID",getclosedcompID);
-                dataIntent.putExtra("gio_loc", gio_loc);
-                startService(dataIntent);
-
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpPost httppost = new HttpPost(URL);
                 httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 HttpResponse response = httpclient.execute(httppost);
                 String st = EntityUtils.toString(response.getEntity());
+                Log.e("Success","Upload image"+name);
             } catch (Exception e) {
                 e.printStackTrace();
                 resetData();
@@ -604,13 +586,118 @@ public class UpdateComplaintActivity extends BaseActivity {
             }
             return "Success";
         }
-
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             pd.hide();
             pd.dismiss();
         }
     }
+    public void submit(View view){
+        getused_qty=used_qty.getText().toString();
+        getused_qty1=used_qty1.getText().toString();
+        getused_qty2=used_qty2.getText().toString();
+        String setused_quy=getused_qty+","+getused_qty1+","+getused_qty2;
+        remarks=Add_complaints.getText().toString().replace(" ","%20");
+        double latitude=0.0,longitude=0.0;
+        if(gps.canGetLocation()){
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+            if(latitude==0.0&&longitude==0.0){
+                gps = new GPSTracker(UpdateComplaintActivity.this);
+            }else {
+                latitude = gps.getLatitude();
+                longitude = gps.getLongitude();
+            }
+        }else{
+            gps.showSettingsAlert();
+        }
+        gio_loc=latitude+","+longitude;
+        getused_qty=used_qty.getText().toString();
+        getused_qty1=used_qty1.getText().toString();
+        getused_qty2=used_qty2.getText().toString();
+
+        if(getused_qty.length()==0){
+            getused_qty1="";
+        }else if(getused_qty1.length()==0){
+            getused_qty="";
+        }else if(getused_qty2.length()==0){
+            getused_qty2="";
+        }
+        String setselectused_quy=getused_qty+","+getused_qty1+","+getused_qty2;
+        String inventoryID=getselectinventory1+","+getselectinventory2+","+getselectinventory3;
+        if(picturePath.length()==0) {
+            Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
+            Messenger dataMessenger = new Messenger(complaintsHandler);
+            dataIntent.putExtra("MESSENGER", dataMessenger);
+            dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
+            dataIntent.putExtra("complaint_id", complaint_id);
+            dataIntent.putExtra("comp_status", comp_status);
+            dataIntent.putExtra("emp_id", getempID);
+            dataIntent.putExtra("remarks", remarks);
+            dataIntent.putExtra("closed_img", "");
+            dataIntent.putExtra("getclosedcompID", getclosedcompID);
+            dataIntent.putExtra("gio_loc", gio_loc);
+            dataIntent.putExtra("used_qty",setselectused_quy);
+            dataIntent.putExtra("inventoryID",inventoryID);
+            startService(dataIntent);
+
+        }else {
+            upload(picturePath,closed_img_name);
+            if(picture1Path.length()!=0){
+                upload(picture1Path,closed_img_name1);
+                picture1Path="";
+            }
+            if(picture2Path.length()!=0){
+                upload(picture2Path,closed_img_name2);
+                picture2Path="";
+            }
+            String closedImageName=closed_img_name+","+closed_img_name1+","+closed_img_name2;
+            Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
+            Messenger dataMessenger = new Messenger(complaintsHandler);
+            dataIntent.putExtra("MESSENGER", dataMessenger);
+            dataIntent.putExtra("type", DataLoader.DataType.COMPLAINT_EDIT.ordinal());
+            dataIntent.putExtra("complaint_id", complaint_id);
+            dataIntent.putExtra("comp_status", comp_status);
+            dataIntent.putExtra("emp_id", getempID);
+            dataIntent.putExtra("remarks", remarks);
+            dataIntent.putExtra("closed_img", closedImageName);
+            dataIntent.putExtra("getclosedcompID",getclosedcompID);
+            dataIntent.putExtra("gio_loc", gio_loc);
+            dataIntent.putExtra("used_qty",setselectused_quy);
+            dataIntent.putExtra("inventoryID",inventoryID);
+            startService(dataIntent);
+        }
+    }
+
+    private Handler complaintsHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle   bundle = msg.getData();
+            String response = bundle.getString("data");
+            try{
+                JSONObject responseObj = new JSONObject(response);
+                String message = responseObj.getString("message");
+                if (message.equalsIgnoreCase("success")) {
+                    final Dialog dialog=new Dialog(UpdateComplaintActivity.this);
+                    dialog.setContentView(R.layout.dialogcomplaint);
+                    dialog.setCancelable(false);
+                    Button button=(Button) dialog.findViewById(R.id.Redirecttodashboard);
+                    button.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.cancel();
+                            finish();
+                        }
+                    });
+                    dialog.show();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+    };
     private void resetData() {
         imageView.setImageResource(0);
         imageView.setVisibility(View.GONE);
@@ -633,23 +720,25 @@ public class UpdateComplaintActivity extends BaseActivity {
                         if(gps.canGetLocation()){
                             latitude = gps.getLatitude();
                             longitude  = gps.getLongitude();
-                            Log.e("GetLocation","latitude :- "+latitude+"\n longitude :- "+longitude);
-                            Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
-                            Messenger dataMessenger = new Messenger(hEMPGPSLOC);
-                            dataIntent.putExtra("MESSENGER", dataMessenger);
-                            dataIntent.putExtra("type", DataLoader.DataType.EMPGPSLOC.ordinal());
-                            dataIntent.putExtra("gps_lang",""+longitude);
-                            dataIntent.putExtra("gps_lat",""+latitude);
-                            dataIntent.putExtra("emp_id",getempID);
-                            startService(dataIntent);
-                        }else{
-                            gps.showSettingsAlert();
+                            if(latitude==0.0&&longitude==0.0){
+                                gps = new GPSTracker(UpdateComplaintActivity.this);
+                            }else {
+                                Log.e("GetLocation","latitude :- "+latitude+"\n longitude :- "+longitude);
+                                Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
+                                Messenger dataMessenger = new Messenger(hEMPGPSLOC);
+                                dataIntent.putExtra("MESSENGER", dataMessenger);
+                                dataIntent.putExtra("type", DataLoader.DataType.EMPGPSLOC.ordinal());
+                                dataIntent.putExtra("gps_lang",""+longitude);
+                                dataIntent.putExtra("gps_lat",""+latitude);
+                                dataIntent.putExtra("emp_id",getempID);
+                                startService(dataIntent);
+                            }
                         }
                     }
                 });
             }
         };
-        mTimer1.schedule(mTt1, 1, 5000);
+        mTimer1.schedule(mTt1, 1, 15000);
     }
     private Handler hEMPGPSLOC=new Handler(){
         @Override
@@ -660,6 +749,11 @@ public class UpdateComplaintActivity extends BaseActivity {
         }
     };
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startTimer();
+    }
     @Override
     protected void onStop() {
         super.onStop();

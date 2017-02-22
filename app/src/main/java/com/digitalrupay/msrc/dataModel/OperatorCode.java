@@ -28,6 +28,12 @@ public class OperatorCode implements Serializable {
     public void setop_id(String op_id) {
         this.op_id = op_id;
     }
+    public String getop_logo() {
+        return op_logo;
+    }
+    public void setop_logo(String op_logo) {
+        this.op_logo = op_logo;
+    }
 
     public String getop_code() {
         return op_code;

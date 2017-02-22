@@ -55,6 +55,9 @@ public class DataLoader extends IntentService {
 		String gps_lang=intent.getStringExtra("gps_lang");
 		String gps_lat=intent.getStringExtra("gps_lat");
 
+		String used_qty=intent.getStringExtra("used_qty");
+		String inventoryid=intent.getStringExtra("inventoryID");
+
 		APICaller caller = new APICaller();
 		String data = new String();
 		String uri,response;
@@ -97,7 +100,7 @@ public class DataLoader extends IntentService {
 				data=response;
 				break;
 			case COMPLAINT_EDIT:
-				uri=mainURL+"complaints_edit.php?complaint_id="+complaint_id+"&comp_status="+comp_status+"&emp_id="+emp_id+"&remarks="+remarks+"&comp_closed_cat="+getclosedcompID+"&closed_img="+closed_img+"&gio_loc="+gio_loc+"";
+				uri=mainURL+"complaints_edit.php?complaint_id="+complaint_id+"&comp_status="+comp_status+"&emp_id="+emp_id+"&remarks="+remarks+"&comp_closed_cat="+getclosedcompID+"&closed_img="+closed_img+"&gio_loc="+gio_loc+"&inventoryid="+inventoryid+"&used_qty="+used_qty+"";
 				Log.e("uri",uri);
 				caller=new APICaller();
 				response = caller.GetDataFromUrl(uri);

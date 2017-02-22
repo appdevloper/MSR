@@ -1,6 +1,8 @@
 package com.digitalrupay.msrc.activitys;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -8,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,16 +22,21 @@ import com.digitalrupay.msrc.backendServices.DataLoader;
 import com.digitalrupay.msrc.dataModel.OperatorCode;
 import com.digitalrupay.msrc.dataModel.OperatorLoginData;
 import com.digitalrupay.msrc.saveAppData.SaveAppData;
+import com.digitalrupay.msrc.utils.ImageLoader;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 
 public class EMPLoginActivity extends AppCompatActivity {
     TextView busiName;
     EditText Operator_username,Operator_password;
+    ImageView c_logo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,10 +44,16 @@ public class EMPLoginActivity extends AppCompatActivity {
         OperatorCode operatorCode=null;
         operatorCode = SaveAppData.getSessionDataInstance().getOperatorData();
         String bName=operatorCode.getop_busiName();
+        String uri=operatorCode.getop_logo();
         busiName=(TextView)findViewById(R.id.busiName);
         Operator_username=(EditText)findViewById(R.id.Operator_username);
         Operator_password=(EditText)findViewById(R.id.Operator_password);
+        c_logo=(ImageView)findViewById(R.id.c_logo);
         busiName.setText(bName);
+        ImageLoader imgLoader = new ImageLoader(getApplicationContext());
+        int loader = R.drawable.splash_logo;
+        imgLoader.DisplayImage(uri, loader, c_logo);
+
     }
     public void login(View view){
         String getOperator_username=Operator_username.getText().toString().trim();

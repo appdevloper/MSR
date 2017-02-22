@@ -133,7 +133,7 @@
                     android:layout_margin="10dp"
                     android:layout_height="50dp"
                     android:paddingBottom="10dp"
-                    android:paddingTop="10dp" />
+                    android:paddingTop="10dp"/>
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -185,11 +185,11 @@
                         android:theme="@style/AppTheme.Button"/>
                     <ImageView
                         android:id="@+id/Imageprev"
-                        android:layout_width="80dp"
+                        android:layout_width="100dp"
                         android:layout_height="80dp"
                         android:scaleType="fitXY"
                         android:visibility="gone"
-                        android:layout_marginLeft="10dp"/>
+                        android:layout_marginLeft="15dp"/>
                 </LinearLayout>
                 <View
                     android:layout_width="match_parent"
@@ -240,11 +240,11 @@
                             android:theme="@style/AppTheme.Button"/>
                         <ImageView
                             android:id="@+id/Imageprev1"
-                            android:layout_width="80dp"
+                            android:layout_width="100dp"
                             android:layout_height="80dp"
                             android:scaleType="fitXY"
                             android:visibility="gone"
-                            android:layout_marginLeft="10dp"/>
+                            android:layout_marginLeft="15dp"/>
                         <Button
                             android:id="@+id/delete1"
                             android:layout_width="70dp"
@@ -252,7 +252,8 @@
                             android:textSize="10dp"
                             android:text="Delete"
                             android:textColor="@color/colorAccent"
-                            android:theme="@style/AppTheme.Button"/>
+                            android:theme="@style/AppTheme.Button"
+                            android:visibility="gone"/>
                     </LinearLayout>
                 </LinearLayout>
                 <View
@@ -304,11 +305,11 @@
                             android:theme="@style/AppTheme.Button"/>
                         <ImageView
                             android:id="@+id/Imageprev2"
-                            android:layout_width="80dp"
+                            android:layout_width="100dp"
                             android:layout_height="80dp"
                             android:scaleType="fitXY"
                             android:visibility="gone"
-                            android:layout_marginLeft="10dp"/>
+                            android:layout_marginLeft="15dp"/>
                         <Button
                             android:id="@+id/delete2"
                             android:layout_width="70dp"
@@ -316,7 +317,8 @@
                             android:textSize="10dp"
                             android:text="Delete"
                             android:textColor="@color/colorAccent"
-                            android:theme="@style/AppTheme.Button"/>
+                            android:theme="@style/AppTheme.Button"
+                            android:visibility="gone"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
