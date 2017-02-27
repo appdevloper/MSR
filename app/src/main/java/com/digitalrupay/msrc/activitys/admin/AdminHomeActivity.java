@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class AdminHomeActivity extends BaseActivity {
+public class AdminHomeActivity extends AppCompatActivity {
     TextView empname;
     ListView admin_inventory_list;
     ArrayList<AdmIninventoryData>  admininventoryDataList;

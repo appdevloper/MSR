@@ -2,6 +2,7 @@ package com.digitalrupay.msrc.activitys.emp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -10,7 +11,7 @@ import com.digitalrupay.msrc.activitys.BaseActivity;
 import com.digitalrupay.msrc.dataModel.OperatorLoginData;
 import com.digitalrupay.msrc.saveAppData.SaveAppData;
 
-public class EMPHomeActivity extends BaseActivity {
+public class EMPHomeActivity extends AppCompatActivity {
     TextView empname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

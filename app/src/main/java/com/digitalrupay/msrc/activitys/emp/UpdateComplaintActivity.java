@@ -47,6 +47,7 @@ import com.digitalrupay.msrc.dataModel.CategoryListData;
 import com.digitalrupay.msrc.dataModel.ClosedcompData;
 import com.digitalrupay.msrc.dataModel.ComplaintData;
 import com.digitalrupay.msrc.dataModel.InventoryData;
+import com.digitalrupay.msrc.dataModel.OperatorCode;
 import com.digitalrupay.msrc.dataModel.OperatorLoginData;
 import com.digitalrupay.msrc.dataModel.UpdateAdmininventoryData;
 import com.digitalrupay.msrc.saveAppData.SaveAppData;
@@ -94,7 +95,7 @@ public class UpdateComplaintActivity extends BaseActivity {
             picture1Path="",picture2Path="",getcomp_cat, cos_data,getclosedcompID,getselectinventory1="",getselectinventory2="",getselectinventory3="",getused_qty,getused_qty1,getused_qty2;
     Uri selectedImage,fileUri;
     Bitmap photo;
-    public static String URL = "http://devtest.digitalrupay.com/webservices/uploads/upload.php";
+    public static String ImageUploadURL;
     ImageView imageView,Imageprev1,Imageprev2;
     ArrayList<ClosedcompData> listclosedcompData=new ArrayList<>();
     private Timer mTimer1;
@@ -113,7 +114,13 @@ public class UpdateComplaintActivity extends BaseActivity {
 
         OperatorLoginData operatorCode = null;
         operatorCode = SaveAppData.getSessionDataInstance().getOperatorLoginData();
-
+        String mainURL="";
+        if (SaveAppData.getSessionDataInstance().getOperatorData() != null || SaveAppData.getSessionDataInstance().getOperatorLoginData() != null ) {
+            OperatorCode opCode = null;
+            opCode = SaveAppData.getSessionDataInstance().getOperatorData();
+            mainURL = opCode.getop_url();
+        }
+        ImageUploadURL = mainURL+"uploads/upload.php";
         getempID = operatorCode.getemp_id();
 
         Intent dataIntent = new Intent(UpdateComplaintActivity.this, DataLoader.class);
@@ -574,7 +581,7 @@ public class UpdateComplaintActivity extends BaseActivity {
             nameValuePairs.add(new BasicNameValuePair("ImageName", name));
             try {
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost(URL);
+                HttpPost httppost = new HttpPost(ImageUploadURL);
                 httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                 HttpResponse response = httpclient.execute(httppost);
                 String st = EntityUtils.toString(response.getEntity());
@@ -596,7 +603,6 @@ public class UpdateComplaintActivity extends BaseActivity {
         getused_qty=used_qty.getText().toString();
         getused_qty1=used_qty1.getText().toString();
         getused_qty2=used_qty2.getText().toString();
-        String setused_quy=getused_qty+","+getused_qty1+","+getused_qty2;
         remarks=Add_complaints.getText().toString().replace(" ","%20");
         double latitude=0.0,longitude=0.0;
         if(gps.canGetLocation()){
@@ -615,14 +621,6 @@ public class UpdateComplaintActivity extends BaseActivity {
         getused_qty=used_qty.getText().toString();
         getused_qty1=used_qty1.getText().toString();
         getused_qty2=used_qty2.getText().toString();
-
-        if(getused_qty.length()==0){
-            getused_qty1="";
-        }else if(getused_qty1.length()==0){
-            getused_qty="";
-        }else if(getused_qty2.length()==0){
-            getused_qty2="";
-        }
         String setselectused_quy=getused_qty+","+getused_qty1+","+getused_qty2;
         String inventoryID=getselectinventory1+","+getselectinventory2+","+getselectinventory3;
         if(picturePath.length()==0) {

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.digitalrupay.msrc.MSRCApplication;
@@ -27,15 +29,29 @@ public class BaseActivity extends AppCompatActivity implements ConnectivityRecei
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         isConnected = ConnectivityReceiver.isConnected();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     @Override
     public void onNetworkConnectionChanged(boolean Connected) {
         isConnected = Connected;
     }
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finish();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            //preventing default implementation previous to android.os.Build.VERSION_CODES.ECLAIR
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     public void redirectToLoginActivity(View view) {
         AlertDialog logoutDialog = new AlertDialog.Builder(this).setTitle("Logout")

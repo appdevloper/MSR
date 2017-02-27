@@ -30,7 +30,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class StockistHomeActivity extends BaseActivity {
+public class StockistHomeActivity extends AppCompatActivity {
     TextView empname;
     ListView admin_inventory_list;
     ArrayList<StockistInventoryData> stockistinventoryDataList;

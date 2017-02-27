@@ -47,12 +47,10 @@ public class ComplaintInventoryListAdapter extends BaseAdapter {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = inflater.inflate(R.layout.adapter_complaint_inventorylist, parent, false);
         TextView empName = (TextView) view.findViewById(R.id.empName);
-//        TextView tot_emp_inv = (TextView) view.findViewById(R.id.tot_emp_inv);
         String getName = list.get(position).getname();
         String getitem_number = list.get(position).getitem_number();
         String gettot_emp_inv = list.get(position).gettot_emp_inv();
-        empName.setText(getName + " (" + getitem_number + ")");
-//        tot_emp_inv.setText(gettot_emp_inv);
+        empName.setText(getName + " (" + getitem_number + ")"+"-"+gettot_emp_inv);
         return view;
     }
 
