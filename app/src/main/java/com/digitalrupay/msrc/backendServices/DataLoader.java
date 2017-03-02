@@ -16,7 +16,7 @@ public class DataLoader extends IntentService {
 	private static final String LOG_TAG = "Data Loader";
 	public enum DataType {
 		OPERATOR_CODE,EMPLOYEE_LOGIN,EMPLOYEE_INVENTORY,COMPLAINTS_LIST,COMPLAINTS_CATEGORY_LIST,COMPLAINT_EDIT,INDENT_RASING,Inventory_Items,
-		admin_inventory,admin_inventory_edit,admin_inv_update,stockist_inventory,stockist_inventory_edit,stockist_inv_update,EMPGPSLOC,CLOSEDCOMP}
+		admin_inventory,admin_inventory_edit,admin_inv_update,stockist_inventory,stockist_inventory_edit,stockist_inv_update,EMPGPSLOC,CLOSEDCOMP,emp_gps_track}
 
 	public DataLoader() {
 		super("Data Loader");
@@ -156,6 +156,12 @@ public class DataLoader extends IntentService {
 				break;
 			case EMPGPSLOC:
 				uri=mainURL+"emp_gps_loc.php?emp_id="+emp_id+"&gps_lat="+gps_lat+"&gps_lang="+gps_lang+"";
+				caller=new APICaller();
+				response = caller.GetDataFromUrl(uri);
+				data=response;
+				break;
+			case emp_gps_track:
+				uri=mainURL+"emp_gps_track.php?emp_id="+emp_id+"&gps_lat="+gps_lat+"&gps_lang="+gps_lang+"";
 				caller=new APICaller();
 				response = caller.GetDataFromUrl(uri);
 				data=response;
