@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_emphome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.digitalrupay.msrc.customviews.CustomTextView
+            style="@style/CenturyGothic_regular_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/in_empname"
+            android:textSize="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/green"/>
+        <com.digitalrupay.msrc.customviews.CustomTextView
+            style="@style/CenturyGothic_regular_font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/inventory"
+            android:textSize="25dp"
+            android:layout_gravity="center_horizontal"/>
+        <ListView
+            android:id="@+id/inventorylist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="60dp"/>
+    </LinearLayout>
+    <include layout="@layout/sign_out" />
+</FrameLayout>
