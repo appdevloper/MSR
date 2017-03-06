@@ -8,10 +8,13 @@ import android.widget.TextView;
 
 import com.digitalrupay.msrc.R;
 import com.digitalrupay.msrc.activitys.BaseActivity;
+import com.digitalrupay.msrc.activitys.EMPLoginActivity;
+import com.digitalrupay.msrc.backendServices.GPSTracker;
+import com.digitalrupay.msrc.backendServices.SendGPSServicesLocation;
 import com.digitalrupay.msrc.dataModel.OperatorLoginData;
 import com.digitalrupay.msrc.saveAppData.SaveAppData;
 
-public class EMPHomeActivity extends AppCompatActivity {
+public class EMPHomeActivity extends BaseActivity {
     TextView empname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +25,8 @@ public class EMPHomeActivity extends AppCompatActivity {
         empname=(TextView)findViewById(R.id.empname);
         String getempname=operatorCode.getemp_first_name()+" "+operatorCode.getemp_last_name();
         empname.setText("Hello "+getempname);
+        Intent intent=new Intent(this,SendGPSServicesLocation.class);
+        startService(intent);
     }
     public void goInventory(View view){
         Intent intent=new Intent(this,InventoryActivity.class);

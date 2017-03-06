@@ -45,4 +45,7 @@ dependencies {
         exclude module: "httpclient"
     }
     compile files('src/main/libs/gson-2.4.jar')
+    compile 'com.google.android.gms:play-services-location:9.6.1'
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.google.android.gms:play-services:10.0.1'
 }
