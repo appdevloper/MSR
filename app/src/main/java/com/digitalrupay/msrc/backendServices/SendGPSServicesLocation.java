@@ -48,7 +48,6 @@ public class SendGPSServicesLocation extends Service implements LocationListener
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("OPen ", "Services of onStartCommand");
-        turnGPSOn();
         startTimer();
         return START_STICKY;
     }
@@ -60,22 +59,24 @@ public class SendGPSServicesLocation extends Service implements LocationListener
                     public void run() {
                         //TODO
                         if (SaveAppData.getSessionDataInstance().getOperatorData() != null) {
-                            getLocation();
-                            OperatorLoginData operatorCode = null;
-                            operatorCode = SaveAppData.getSessionDataInstance().getOperatorLoginData();
-                            String getempID = operatorCode.getemp_id();
-                             latitude=getLatitude();
-                             longitude=getLongitude();
-                                    Log.e("GetLocation", "latitude :- " + latitude + "\n longitude :- " + longitude);
-                                    Intent dataIntent = new Intent(SendGPSServicesLocation.this, DataLoader.class);
-                                    Messenger dataMessenger = new Messenger(hEMPGPSLOC);
-                                    dataIntent.putExtra("MESSENGER", dataMessenger);
-                                    dataIntent.putExtra("type", DataLoader.DataType.EMPGPSLOC.ordinal());
-                                    dataIntent.putExtra("gps_lang", "" + longitude);
-                                    dataIntent.putExtra("gps_lat", "" + latitude);
-                                    dataIntent.putExtra("emp_id", getempID);
-                                    startService(dataIntent);
-                                }
+                            if(SaveAppData.getSessionDataInstance().getOperatorLoginData() != null) {
+                                getLocation();
+                                OperatorLoginData operatorCode = null;
+                                operatorCode = SaveAppData.getSessionDataInstance().getOperatorLoginData();
+                                String getempID = operatorCode.getemp_id();
+                                latitude = getLatitude();
+                                longitude = getLongitude();
+                                Log.e("GetLocation", "latitude :- " + latitude + "\n longitude :- " + longitude);
+                                Intent dataIntent = new Intent(SendGPSServicesLocation.this, DataLoader.class);
+                                Messenger dataMessenger = new Messenger(hEMPGPSLOC);
+                                dataIntent.putExtra("MESSENGER", dataMessenger);
+                                dataIntent.putExtra("type", DataLoader.DataType.EMPGPSLOC.ordinal());
+                                dataIntent.putExtra("gps_lang", "" + longitude);
+                                dataIntent.putExtra("gps_lat", "" + latitude);
+                                dataIntent.putExtra("emp_id", getempID);
+                                startService(dataIntent);
+                            }
+                        }
                     }
                 });
             }
@@ -101,7 +102,7 @@ public class SendGPSServicesLocation extends Service implements LocationListener
         if(mTimer1 != null){
             mTimer1.cancel();
             mTimer1.purge();
-            turnGPSOff();
+//            turnGPSOff();
         }
     }
     public double getLatitude() {
@@ -199,27 +200,27 @@ public class SendGPSServicesLocation extends Service implements LocationListener
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.d("Latitude","status");
     }
-        private void turnGPSOn(){
-        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-
-        if(!provider.contains("gps")){ //if gps is disabled
-            final Intent poke = new Intent();
-            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
-            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
-            poke.setData(Uri.parse("3"));
-            sendBroadcast(poke);
-        }
-    }
-
-    private void turnGPSOff(){
-        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if(provider.contains("gps")){ //if gps is enabled
-            final Intent poke = new Intent();
-            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
-            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
-            poke.setData(Uri.parse("3"));
-            sendBroadcast(poke);
-        }
-    }
+//        private void turnGPSOn(){
+//        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+//
+//        if(!provider.contains("gps")){ //if gps is disabled
+//            final Intent poke = new Intent();
+//            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+//            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+//            poke.setData(Uri.parse("3"));
+//            sendBroadcast(poke);
+//        }
+//    }
+//
+//    private void turnGPSOff(){
+//        String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+//        if(provider.contains("gps")){ //if gps is enabled
+//            final Intent poke = new Intent();
+//            poke.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
+//            poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+//            poke.setData(Uri.parse("3"));
+//            sendBroadcast(poke);
+//        }
+//    }
 }
 

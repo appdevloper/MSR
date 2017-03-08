@@ -1,9 +1,11 @@
 package com.digitalrupay.msrc.activitys.stockist;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,8 +15,10 @@ import android.widget.TextView;
 
 import com.digitalrupay.msrc.R;
 import com.digitalrupay.msrc.activitys.BaseActivity;
+import com.digitalrupay.msrc.activitys.SearchOperatorCode;
 import com.digitalrupay.msrc.activitys.admin.AdminHomeActivity;
 import com.digitalrupay.msrc.activitys.admin.EditAdminInventoryActivity;
+import com.digitalrupay.msrc.activitys.emp.EMPHomeActivity;
 import com.digitalrupay.msrc.adapter.AdminListAdapter;
 import com.digitalrupay.msrc.adapter.StockistInventoryAdapter;
 import com.digitalrupay.msrc.backendServices.DataLoader;
@@ -66,7 +70,68 @@ public class StockistHomeActivity extends AppCompatActivity {
         dataIntent.putExtra("jsonObject", getempID);
         startService(dataIntent);
     }
-
+    public void redirectToLoginActivity(View view) {
+        AlertDialog logoutDialog = new AlertDialog.Builder(this).setTitle("Logout")
+                .setMessage("Are you sure want to logout?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        logout();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert).setCancelable(false).show();
+    }
+    private void logout() {
+        SaveAppData.saveOperatorData(null);
+        SaveAppData.saveOperatorLoginData(null);
+        Intent login = new Intent(this, SearchOperatorCode.class);
+        login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(login);
+        finish();
+    }
+    public void redirectToHomeActivity(View view) {
+        AlertDialog homeDialog = new AlertDialog.Builder(this).setTitle("Home")
+                .setMessage("Are you sure want to navigate to home screen?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        home();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert).setCancelable(false).show();
+    }
+    private void home() {
+        OperatorLoginData operatorCode = SaveAppData.getSessionDataInstance().getOperatorLoginData();
+        String type = operatorCode.getuser_type();
+        if (type.equalsIgnoreCase("4")) {
+            Intent intent = new Intent(this, EMPHomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } else if (type.equalsIgnoreCase("1")) {
+            Intent intent = new Intent(this, AdminHomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } else if (type.equalsIgnoreCase("2")) {
+            Intent intent = new Intent(this, StockistHomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+        finish();
+    }
     private Handler EHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
