@@ -16,6 +16,7 @@ import com.digitalrupay.msrc.activitys.admin.AdminHomeActivity;
 import com.digitalrupay.msrc.activitys.emp.EMPHomeActivity;
 import com.digitalrupay.msrc.activitys.stockist.StockistHomeActivity;
 import com.digitalrupay.msrc.backendServices.ConnectivityReceiver;
+import com.digitalrupay.msrc.backendServices.SendGPSServicesLocation;
 import com.digitalrupay.msrc.dataModel.OperatorLoginData;
 import com.digitalrupay.msrc.saveAppData.SaveAppData;
 
@@ -94,6 +95,9 @@ public class BaseActivity extends AppCompatActivity implements ConnectivityRecei
     private void logout() {
         SaveAppData.saveOperatorData(null);
         SaveAppData.saveOperatorLoginData(null);
+        MSRCApplication.EMPStatusCode="0";
+        Intent intent=new Intent(this,SendGPSServicesLocation.class);
+        startService(intent);
         Intent login = new Intent(this, SearchOperatorCode.class);
         login.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(login);

@@ -13,6 +13,7 @@ public class MSRCApplication extends Application implements ConnectivityReceiver
     private static Context appContext;
     private static MSRCApplication mInstance;
     boolean isConnected;
+    public static String EMPStatusCode="";
     @Override
     public void onCreate() {
         super.onCreate();

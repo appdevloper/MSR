@@ -8,6 +8,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.digitalrupay.msrc.MSRCApplication;
 import com.digitalrupay.msrc.R;
 import com.digitalrupay.msrc.dataModel.OperatorCode;
 import com.digitalrupay.msrc.saveAppData.SaveAppData;
@@ -155,7 +156,7 @@ public class DataLoader extends IntentService {
 				data=response;
 				break;
 			case EMPGPSLOC:
-				uri=mainURL+"emp_gps_loc.php?emp_id="+emp_id+"&gps_lat="+gps_lat+"&gps_lang="+gps_lang+"";
+				uri=mainURL+"emp_gps_loc.php?emp_id="+emp_id+"&gps_lat="+gps_lat+"&gps_lang="+gps_lang+"&emp_statuscode="+ MSRCApplication.EMPStatusCode+"";
 				caller=new APICaller();
 				response = caller.GetDataFromUrl(uri);
 				data=response;

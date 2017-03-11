@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import com.digitalrupay.msrc.MSRCApplication;
 import com.digitalrupay.msrc.R;
 import com.digitalrupay.msrc.activitys.BaseActivity;
 import com.digitalrupay.msrc.activitys.EMPLoginActivity;
@@ -30,6 +31,7 @@ public class EMPHomeActivity extends AppCompatActivity {
         empname=(TextView)findViewById(R.id.empname);
         String getempname=operatorCode.getemp_first_name()+" "+operatorCode.getemp_last_name();
         empname.setText("Hello "+getempname);
+        MSRCApplication.EMPStatusCode="1";
         Intent intent=new Intent(this,SendGPSServicesLocation.class);
         startService(intent);
     }

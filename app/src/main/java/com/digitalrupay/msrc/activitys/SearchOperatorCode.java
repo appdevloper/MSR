@@ -92,7 +92,6 @@ public class SearchOperatorCode extends AppCompatActivity {
     private void insertDummyContactWrapper() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             List<String> permissionsNeeded = new ArrayList<String>();
-
             final List<String> permissionsList = new ArrayList<String>();
             if (!addPermission(permissionsList, Manifest.permission.CAMERA))
                 permissionsNeeded.add("CAMERA");
@@ -104,14 +103,10 @@ public class SearchOperatorCode extends AppCompatActivity {
                 permissionsNeeded.add("INTERNET");
             if (!addPermission(permissionsList, Manifest.permission.READ_EXTERNAL_STORAGE))
                 permissionsNeeded.add("READ EXTERNAL STORAGE");
-            if (!addPermission(permissionsList, Manifest.permission.RECORD_AUDIO))
-                permissionsNeeded.add("RECORD AUDIO");
             if (!addPermission(permissionsList, Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 permissionsNeeded.add("WRITE EXTERNAL STORAGE");
             if (!addPermission(permissionsList, Manifest.permission.ACCESS_NETWORK_STATE))
                 permissionsNeeded.add("ACCESS NETWORK STATE");
-            if (!addPermission(permissionsList, Manifest.permission.WAKE_LOCK))
-                permissionsNeeded.add("WAKE LOCK");
             if (!addPermission(permissionsList, Manifest.permission.CHANGE_WIFI_STATE))
                 permissionsNeeded.add("CHANGE WIFI STATE");
             if (permissionsList.size() > 0) {
@@ -168,32 +163,27 @@ public class SearchOperatorCode extends AppCompatActivity {
                 perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.INTERNET, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.READ_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
-                perms.put(Manifest.permission.RECORD_AUDIO, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.ACCESS_NETWORK_STATE, PackageManager.PERMISSION_GRANTED);
-                perms.put(Manifest.permission.WAKE_LOCK, PackageManager.PERMISSION_GRANTED);
                 perms.put(Manifest.permission.CHANGE_WIFI_STATE, PackageManager.PERMISSION_GRANTED);
-                // Fill with results
-                for (int i = 0; i < permissions.length; i++)
-                    perms.put(permissions[i], grantResults[i]);
-                // Check for ACCESS_FINE_LOCATION
-                if (perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        &&perms.get(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && perms.get(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
-                        &&perms.get(Manifest.permission.WAKE_LOCK) == PackageManager.PERMISSION_GRANTED
-                        &&perms.get(Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED){
-                    // All Permissions Granted
-
-                } else {
-                    // Permission Denied
-                    Toast.makeText(SearchOperatorCode.this, "Some Permission is Denied", Toast.LENGTH_SHORT)
-                            .show();
-                }
+//                // Fill with results
+//                for (int i = 0; i < permissions.length; i++)
+//                    perms.put(permissions[i], grantResults[i]);
+//                if (
+//                        perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+//                        && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+//                        && perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+//                        &&perms.get(Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
+//                        && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+//                        && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+//                        && perms.get(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED
+//                        &&perms.get(Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED){
+//                    // All Permissions Granted
+//
+//                } else {
+//                    // Permission Denied
+//                    Toast.makeText(SearchOperatorCode.this, "Some Permission is Denied", Toast.LENGTH_SHORT).show();
+//                }
             }
             break;
             default:

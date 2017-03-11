@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable(){
             @Override
             public void run() {
-                if (SaveAppData.getSessionDataInstance().getOperatorData() != null   ) {
+                if (SaveAppData.getSessionDataInstance().getOperatorData() != null) {
                     if(SaveAppData.getSessionDataInstance().getOperatorLoginData() != null) {
                         OperatorLoginData operatorCode = SaveAppData.getSessionDataInstance().getOperatorLoginData();
                         String type = operatorCode.getuser_type();
